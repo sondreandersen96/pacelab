@@ -23,6 +23,11 @@ enum class EnduranceWorkoutType {
     TREADMILL_RUNNING,
 }
 
+enum class WorkoutKind {
+    ENDURANCE,
+    STRENGTH,
+}
+
 @JvmInline
 value class DistanceMeters(val value: Double) {
     init {
@@ -42,6 +47,12 @@ sealed class Workout {
     abstract val source: WorkoutSource
     abstract val startedAt: Instant
     abstract val duration: Duration
+
+    val kind: WorkoutKind
+        get() = when (this) {
+            is EnduranceWorkout -> WorkoutKind.ENDURANCE
+            is StrengthWorkout -> WorkoutKind.STRENGTH
+        }
 }
 
 data class EnduranceWorkout(
