@@ -20,6 +20,17 @@ class WorkoutControllerTest(
     @Autowired private val objectMapper: ObjectMapper,
 ) {
     @Test
+    fun `serves generated OpenAPI documentation`() {
+        mockMvc.perform(get("/v3/api-docs"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.paths['/workouts']").exists())
+            .andExpect(jsonPath("$.paths['/workouts/{id}']").exists())
+
+        mockMvc.perform(get("/swagger-ui.html"))
+            .andExpect(status().is3xxRedirection)
+    }
+
+    @Test
     fun `creates an endurance workout`() {
         mockMvc.perform(
             post("/workouts")
