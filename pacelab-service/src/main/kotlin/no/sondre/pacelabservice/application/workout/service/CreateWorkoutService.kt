@@ -18,6 +18,7 @@ class CreateWorkoutService(
             is CreateEnduranceWorkoutCommand -> EnduranceWorkout(
                 id = WorkoutId.generate(),
                 source = command.source,
+                sourceActivityId = command.sourceActivityId,
                 startedAt = command.startedAt,
                 duration = command.duration,
                 type = command.type,
@@ -27,6 +28,7 @@ class CreateWorkoutService(
             is CreateStrengthWorkoutCommand -> StrengthWorkout(
                 id = WorkoutId.generate(),
                 source = command.source,
+                sourceActivityId = command.sourceActivityId,
                 startedAt = command.startedAt,
                 duration = command.duration,
             )

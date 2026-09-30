@@ -15,6 +15,7 @@ import no.sondre.pacelabservice.domain.EnduranceWorkoutType
 import no.sondre.pacelabservice.domain.Workout
 import no.sondre.pacelabservice.domain.WorkoutId
 import no.sondre.pacelabservice.domain.WorkoutSource
+import no.sondre.pacelabservice.domain.SourceActivityId
 import java.time.Duration
 import java.time.Instant
 
@@ -47,6 +48,9 @@ class CreateWorkoutServiceTest {
         }
 
         override fun findById(id: WorkoutId): Workout? = saved?.takeIf { it.id == id }
+
+        override fun findBySourceActivityId(source: WorkoutSource, sourceActivityId: SourceActivityId): Workout? =
+            saved?.takeIf { it.source == source && it.sourceActivityId == sourceActivityId }
 
         override fun find(
             criteria: WorkoutSearchCriteria,

@@ -1,38 +1,44 @@
-package no.sondre.pacelabservice.application.workout.port.input
+package no.sondre.pacelabservice.application.workout.port.output
 
 import no.sondre.pacelabservice.domain.DistanceMeters
 import no.sondre.pacelabservice.domain.EnduranceWorkoutType
 import no.sondre.pacelabservice.domain.PowerWatts
 import no.sondre.pacelabservice.domain.SourceActivityId
-import no.sondre.pacelabservice.domain.Workout
 import no.sondre.pacelabservice.domain.WorkoutSource
 import java.time.Duration
 import java.time.Instant
 
-interface CreateWorkout {
-    operator fun invoke(command: CreateWorkoutCommand): Workout
+interface ExternalWorkoutImporter {
+    fun fetchWorkouts(): ExternalWorkoutImportBatch
 }
 
-sealed interface CreateWorkoutCommand {
+data class ExternalWorkoutImportBatch(
+    val workouts: List<ExternalWorkout>,
+    val skipped: Int,
+)
+
+sealed interface ExternalWorkout {
     val source: WorkoutSource
-    val sourceActivityId: SourceActivityId?
+    val sourceActivityId: SourceActivityId
     val startedAt: Instant
     val duration: Duration
 }
 
-data class CreateEnduranceWorkoutCommand(
+data class ExternalEnduranceWorkout(
     override val source: WorkoutSource,
-    override val sourceActivityId: SourceActivityId? = null,
+    override val sourceActivityId: SourceActivityId,
     override val startedAt: Instant,
     override val duration: Duration,
     val type: EnduranceWorkoutType,
     val distance: DistanceMeters,
-    val averagePower: PowerWatts? = null,
-) : CreateWorkoutCommand
+    val averagePower: PowerWatts?,
+) : ExternalWorkout
 
-data class CreateStrengthWorkoutCommand(
+data class ExternalStrengthWorkout(
     override val source: WorkoutSource,
-    override val sourceActivityId: SourceActivityId? = null,
+    override val sourceActivityId: SourceActivityId,
     override val startedAt: Instant,
     override val duration: Duration,
-) : CreateWorkoutCommand
+) : ExternalWorkout
+
+class ExternalWorkoutConnectionUnavailableException : RuntimeException()

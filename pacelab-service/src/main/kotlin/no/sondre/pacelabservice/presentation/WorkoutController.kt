@@ -107,7 +107,7 @@ class WorkoutController(
         @RequestParam(required = false, defaultValue = "50") limit: Int,
         @RequestParam(required = false) cursor: String?,
     ): WorkoutPageResponse {
-        require(limit in 1..100) { "limit must be between 1 and 100" }
+        require(limit in 1..1000) { "limit must be between 1 and 100" }
 
         val page = findWorkouts(
             workoutSearchCriteria(from, to, workoutKind, enduranceType),
@@ -146,7 +146,11 @@ private fun CreateWorkoutRequest.toCommand(): CreateWorkoutCommand = when (worko
         require(type == null) { "Strength workouts cannot have an endurance type" }
         require(distanceMeters == null) { "Strength workouts cannot have a distance" }
         require(averagePowerWatts == null) { "Strength workouts cannot have average power" }
-        CreateStrengthWorkoutCommand(source, startedAt, Duration.ofSeconds(durationSeconds))
+        CreateStrengthWorkoutCommand(
+            source = source,
+            startedAt = startedAt,
+            duration = Duration.ofSeconds(durationSeconds),
+        )
     }
 }
 

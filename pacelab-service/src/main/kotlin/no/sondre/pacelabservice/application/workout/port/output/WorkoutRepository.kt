@@ -4,6 +4,8 @@ import no.sondre.pacelabservice.domain.EnduranceWorkoutType
 import no.sondre.pacelabservice.domain.Workout
 import no.sondre.pacelabservice.domain.WorkoutId
 import no.sondre.pacelabservice.domain.WorkoutKind
+import no.sondre.pacelabservice.domain.WorkoutSource
+import no.sondre.pacelabservice.domain.SourceActivityId
 import java.time.Duration
 import java.time.Instant
 
@@ -11,6 +13,8 @@ interface WorkoutRepository {
     fun save(workout: Workout)
 
     fun findById(id: WorkoutId): Workout?
+
+    fun findBySourceActivityId(source: WorkoutSource, sourceActivityId: SourceActivityId): Workout?
 
     fun find(
         criteria: WorkoutSearchCriteria,

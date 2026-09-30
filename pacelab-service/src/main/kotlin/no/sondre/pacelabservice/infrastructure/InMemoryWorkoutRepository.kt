@@ -8,6 +8,8 @@ import no.sondre.pacelabservice.application.workout.port.output.WorkoutSearchCri
 import no.sondre.pacelabservice.domain.EnduranceWorkout
 import no.sondre.pacelabservice.domain.Workout
 import no.sondre.pacelabservice.domain.WorkoutId
+import no.sondre.pacelabservice.domain.WorkoutSource
+import no.sondre.pacelabservice.domain.SourceActivityId
 import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -19,6 +21,9 @@ class InMemoryWorkoutRepository : WorkoutRepository {
     }
 
     override fun findById(id: WorkoutId): Workout? = workouts.find { it.id == id }
+
+    override fun findBySourceActivityId(source: WorkoutSource, sourceActivityId: SourceActivityId): Workout? =
+        workouts.find { it.source == source && it.sourceActivityId == sourceActivityId }
 
     override fun find(
         criteria: WorkoutSearchCriteria,

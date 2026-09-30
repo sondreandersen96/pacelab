@@ -16,6 +16,13 @@ enum class WorkoutSource {
     STRAVA,
 }
 
+@JvmInline
+value class SourceActivityId(val value: String) {
+    init {
+        require(value.isNotBlank()) { "Source activity id must not be blank" }
+    }
+}
+
 enum class EnduranceWorkoutType {
     CYCLING,
     INDOOR_CYCLING,
@@ -45,6 +52,7 @@ value class PowerWatts(val value: Double) {
 sealed class Workout {
     abstract val id: WorkoutId
     abstract val source: WorkoutSource
+    abstract val sourceActivityId: SourceActivityId?
     abstract val startedAt: Instant
     abstract val duration: Duration
 
@@ -58,6 +66,7 @@ sealed class Workout {
 data class EnduranceWorkout(
     override val id: WorkoutId,
     override val source: WorkoutSource,
+    override val sourceActivityId: SourceActivityId? = null,
     override val startedAt: Instant,
     override val duration: Duration,
     val type: EnduranceWorkoutType,
@@ -75,6 +84,7 @@ data class EnduranceWorkout(
 data class StrengthWorkout(
     override val id: WorkoutId,
     override val source: WorkoutSource,
+    override val sourceActivityId: SourceActivityId? = null,
     override val startedAt: Instant,
     override val duration: Duration,
 ) : Workout() {
