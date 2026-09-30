@@ -1,6 +1,7 @@
 package no.sondre.pacelabservice.presentation
 
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -25,6 +26,7 @@ class WorkoutControllerTest(
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.paths['/workouts']").exists())
             .andExpect(jsonPath("$.paths['/workouts/{id}']").exists())
+            .andExpect(jsonPath("$.paths['/workouts/summary']").exists())
 
         mockMvc.perform(get("/swagger-ui.html"))
             .andExpect(status().is3xxRedirection)
@@ -159,10 +161,86 @@ class WorkoutControllerTest(
             .andExpect(jsonPath("$.message").value("from must be before to"))
     }
 
+    @Test
+    fun `summarizes cycling workouts in a timeframe`() {
+        createWorkout("ENDURANCE", "2026-01-01T00:00:00Z", "CYCLING", 1_800, 5_000.0)
+        createWorkout("ENDURANCE", "2026-01-31T00:00:00Z", "CYCLING", 3_600, 10_000.0)
+        createWorkout("ENDURANCE", "2026-01-15T00:00:00Z", "RUNNING", 1_800, 5_000.0)
+        createWorkout("ENDURANCE", "2026-02-01T00:00:00Z", "CYCLING", 1_800, 5_000.0)
+
+        mockMvc.perform(
+            get("/workouts/summary")
+                .param("from", "2026-01-01T00:00:00Z")
+                .param("to", "2026-02-01T00:00:00Z")
+                .param("workoutKind", "ENDURANCE")
+                .param("enduranceType", "CYCLING"),
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.activityCount").value(2))
+            .andExpect(jsonPath("$.totalDurationSeconds").value(5_400))
+            .andExpect(jsonPath("$.totalDistanceMeters").value(15_000.0))
+    }
+
+    @Test
+    fun `summarizes strength workouts with zero distance`() {
+        createWorkout("STRENGTH", "2026-03-01T00:00:00Z", durationSeconds = 2_700)
+
+        mockMvc.perform(
+            get("/workouts/summary")
+                .param("from", "2026-03-01T00:00:00Z")
+                .param("to", "2026-03-02T00:00:00Z")
+                .param("workoutKind", "STRENGTH"),
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.activityCount").value(1))
+            .andExpect(jsonPath("$.totalDurationSeconds").value(2_700))
+            .andExpect(jsonPath("$.totalDistanceMeters").value(0.0))
+    }
+
+    @Test
+    fun `summarizes all workout history`() {
+        val before = summary()
+        createWorkout("STRENGTH", "2026-04-01T00:00:00Z")
+        val after = summary()
+
+        assertEquals(before.path("activityCount").asLong() + 1, after.path("activityCount").asLong())
+        assertEquals(
+            before.path("totalDurationSeconds").asLong() + 1_800,
+            after.path("totalDurationSeconds").asLong(),
+        )
+        assertEquals(before.path("totalDistanceMeters").asDouble(), after.path("totalDistanceMeters").asDouble())
+    }
+
+    @Test
+    fun `returns zero totals for an empty summary`() {
+        mockMvc.perform(
+            get("/workouts/summary")
+                .param("from", "2030-01-01T00:00:00Z")
+                .param("to", "2030-02-01T00:00:00Z"),
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.activityCount").value(0))
+            .andExpect(jsonPath("$.totalDurationSeconds").value(0))
+            .andExpect(jsonPath("$.totalDistanceMeters").value(0.0))
+    }
+
+    @Test
+    fun `rejects invalid summary timeframe`() {
+        mockMvc.perform(
+            get("/workouts/summary")
+                .param("from", "2026-02-01T00:00:00Z")
+                .param("to", "2026-01-01T00:00:00Z"),
+        )
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message").value("from must be before to"))
+    }
+
     private fun createWorkout(
         workoutKind: String,
         startedAt: String,
         type: String? = null,
+        durationSeconds: Long = 1_800,
+        distanceMeters: Double = 5_000.0,
     ) = objectMapper.readTree(
         mockMvc.perform(
             post("/workouts")
@@ -174,7 +252,7 @@ class WorkoutControllerTest(
                           "source": "MANUAL",
                           "workoutKind": "STRENGTH",
                           "startedAt": "$startedAt",
-                          "durationSeconds": 1800
+                          "durationSeconds": $durationSeconds
                         }
                         """.trimIndent()
                     } else {
@@ -183,13 +261,21 @@ class WorkoutControllerTest(
                           "source": "MANUAL",
                           "workoutKind": "ENDURANCE",
                           "startedAt": "$startedAt",
-                          "durationSeconds": 1800,
+                          "durationSeconds": $durationSeconds,
                           "type": "$type",
-                          "distanceMeters": 5000
+                          "distanceMeters": $distanceMeters
                         }
                         """.trimIndent()
                     },
                 ),
         ).andExpect(status().isCreated).andReturn().response.contentAsString,
+    )
+
+    private fun summary() = objectMapper.readTree(
+        mockMvc.perform(get("/workouts/summary"))
+            .andExpect(status().isOk)
+            .andReturn()
+            .response
+            .contentAsString,
     )
 }

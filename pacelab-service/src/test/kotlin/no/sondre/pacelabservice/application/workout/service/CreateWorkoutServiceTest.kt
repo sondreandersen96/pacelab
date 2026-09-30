@@ -5,6 +5,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertSame
 import no.sondre.pacelabservice.application.workout.port.input.CreateEnduranceWorkoutCommand
 import no.sondre.pacelabservice.application.workout.port.output.WorkoutCursor
+import no.sondre.pacelabservice.application.workout.port.output.WorkoutHistorySummary
 import no.sondre.pacelabservice.application.workout.port.output.WorkoutPage
 import no.sondre.pacelabservice.application.workout.port.output.WorkoutRepository
 import no.sondre.pacelabservice.application.workout.port.output.WorkoutSearchCriteria
@@ -52,5 +53,8 @@ class CreateWorkoutServiceTest {
             cursor: WorkoutCursor?,
             limit: Int,
         ): WorkoutPage = WorkoutPage(emptyList(), null)
+
+        override fun summarize(criteria: WorkoutSearchCriteria): WorkoutHistorySummary =
+            WorkoutHistorySummary(0, Duration.ZERO, 0.0)
     }
 }

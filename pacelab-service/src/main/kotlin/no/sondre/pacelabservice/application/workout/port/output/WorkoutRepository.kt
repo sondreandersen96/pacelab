@@ -4,6 +4,7 @@ import no.sondre.pacelabservice.domain.EnduranceWorkoutType
 import no.sondre.pacelabservice.domain.Workout
 import no.sondre.pacelabservice.domain.WorkoutId
 import no.sondre.pacelabservice.domain.WorkoutKind
+import java.time.Duration
 import java.time.Instant
 
 interface WorkoutRepository {
@@ -16,6 +17,8 @@ interface WorkoutRepository {
         cursor: WorkoutCursor?,
         limit: Int,
     ): WorkoutPage
+
+    fun summarize(criteria: WorkoutSearchCriteria): WorkoutHistorySummary
 }
 
 data class WorkoutSearchCriteria(
@@ -33,4 +36,10 @@ data class WorkoutCursor(
 data class WorkoutPage(
     val workouts: List<Workout>,
     val nextCursor: WorkoutCursor?,
+)
+
+data class WorkoutHistorySummary(
+    val activityCount: Long,
+    val totalDuration: Duration,
+    val totalDistanceMeters: Double,
 )

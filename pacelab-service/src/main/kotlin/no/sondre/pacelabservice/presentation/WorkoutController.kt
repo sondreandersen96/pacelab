@@ -7,7 +7,9 @@ import no.sondre.pacelabservice.application.workout.port.input.CreateWorkout
 import no.sondre.pacelabservice.application.workout.port.input.CreateWorkoutCommand
 import no.sondre.pacelabservice.application.workout.port.input.FindWorkouts
 import no.sondre.pacelabservice.application.workout.port.input.GetWorkout
+import no.sondre.pacelabservice.application.workout.port.input.SummarizeWorkoutHistory
 import no.sondre.pacelabservice.application.workout.port.output.WorkoutCursor
+import no.sondre.pacelabservice.application.workout.port.output.WorkoutHistorySummary
 import no.sondre.pacelabservice.application.workout.port.output.WorkoutSearchCriteria
 import no.sondre.pacelabservice.domain.DistanceMeters
 import no.sondre.pacelabservice.domain.EnduranceWorkout
@@ -63,12 +65,19 @@ data class WorkoutPageResponse(
     val nextCursor: String?,
 )
 
+data class WorkoutHistorySummaryResponse(
+    val activityCount: Long,
+    val totalDurationSeconds: Long,
+    val totalDistanceMeters: Double,
+)
+
 @RestController
 @RequestMapping("/workouts")
 class WorkoutController(
     private val createWorkout: CreateWorkout,
     private val getWorkout: GetWorkout,
     private val findWorkouts: FindWorkouts,
+    private val summarizeWorkoutHistory: SummarizeWorkoutHistory,
 ) {
     @PostMapping
     fun create(@RequestBody request: CreateWorkoutRequest): ResponseEntity<WorkoutResponse> {
@@ -80,6 +89,15 @@ class WorkoutController(
     fun get(@PathVariable id: String): WorkoutResponse =
         getWorkout(WorkoutId(UUID.fromString(id)))?.toResponse() ?: throw WorkoutNotFoundException
 
+    @GetMapping("/summary")
+    fun summarize(
+        @RequestParam(required = false) from: Instant?,
+        @RequestParam(required = false) to: Instant?,
+        @RequestParam(required = false) workoutKind: WorkoutKind?,
+        @RequestParam(required = false) enduranceType: EnduranceWorkoutType?,
+    ): WorkoutHistorySummaryResponse =
+        summarizeWorkoutHistory(workoutSearchCriteria(from, to, workoutKind, enduranceType)).toResponse()
+
     @GetMapping
     fun find(
         @RequestParam(required = false) from: Instant?,
@@ -89,25 +107,30 @@ class WorkoutController(
         @RequestParam(required = false, defaultValue = "50") limit: Int,
         @RequestParam(required = false) cursor: String?,
     ): WorkoutPageResponse {
-        require((from == null) == (to == null)) { "Both from and to must be supplied together" }
-        require(from == null || from < to) { "from must be before to" }
         require(limit in 1..100) { "limit must be between 1 and 100" }
-        require(workoutKind != WorkoutKind.STRENGTH || enduranceType == null) {
-            "Strength workouts cannot have an endurance type filter"
-        }
 
         val page = findWorkouts(
-            WorkoutSearchCriteria(
-                startedAtFrom = from,
-                startedAtTo = to,
-                kind = workoutKind,
-                enduranceType = enduranceType,
-            ),
+            workoutSearchCriteria(from, to, workoutKind, enduranceType),
             cursor?.toWorkoutCursor(),
             limit,
         )
         return WorkoutPageResponse(page.workouts.map { it.toResponse() }, page.nextCursor?.encode())
     }
+}
+
+private fun workoutSearchCriteria(
+    from: Instant?,
+    to: Instant?,
+    workoutKind: WorkoutKind?,
+    enduranceType: EnduranceWorkoutType?,
+): WorkoutSearchCriteria {
+    require((from == null) == (to == null)) { "Both from and to must be supplied together" }
+    require(from == null || from < to) { "from must be before to" }
+    require(workoutKind != WorkoutKind.STRENGTH || enduranceType == null) {
+        "Strength workouts cannot have an endurance type filter"
+    }
+
+    return WorkoutSearchCriteria(from, to, workoutKind, enduranceType)
 }
 
 private fun CreateWorkoutRequest.toCommand(): CreateWorkoutCommand = when (workoutKind) {
@@ -147,6 +170,12 @@ private fun Workout.toResponse(): WorkoutResponse = when (this) {
         durationSeconds = duration.seconds,
     )
 }
+
+private fun WorkoutHistorySummary.toResponse() = WorkoutHistorySummaryResponse(
+    activityCount = activityCount,
+    totalDurationSeconds = totalDuration.seconds,
+    totalDistanceMeters = totalDistanceMeters,
+)
 
 private fun WorkoutCursor.encode(): String =
     Base64.getUrlEncoder().withoutPadding().encodeToString("$startedAt|${id.value}".toByteArray(UTF_8))
