@@ -33,3 +33,24 @@ STRAVA_CLIENT_SECRET=your-client-secret \
 ```
 
 Credentials and imported workouts are intentionally in-memory and disappear on restart.
+
+## Coach API
+
+The single-user coach conversation is retained in memory until the application restarts. It uses OpenCode Console directly and can inspect workout summaries, workout lists, and individual workouts.
+
+| Variable | Required | Default | Description |
+| --- | --- | --- | --- |
+| `OPENCODE_API_KEY` | Yes | - | OpenCode Console API key. |
+| `OPENCODE_MODEL` | No | `gpt-5.6-luna` | OpenCode Console model ID. |
+| `OPENCODE_BASE_URL` | No | `https://opencode.ai/zen/v1` | OpenCode Console API base URL. |
+
+```sh
+OPENCODE_API_KEY=your-console-api-key ./gradlew bootRun
+```
+
+Endpoints:
+
+```text
+GET  /coach/messages
+POST /coach/messages    { "message": "How was my cycling last month?" }
+```
