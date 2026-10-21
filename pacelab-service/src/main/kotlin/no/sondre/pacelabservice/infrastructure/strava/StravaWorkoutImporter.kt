@@ -39,7 +39,7 @@ class StravaWorkoutImporter(
             val activities = restClient.get().uri { builder ->
                 builder.path("/api/v3/athlete/activities")
                     .queryParam("page", page)
-                    .queryParam("per_page", 200)
+                    .queryParam("per_page", PAGE_SIZE)
                     .build()
             }
                 .header("Authorization", "Bearer $accessToken")
@@ -51,10 +51,15 @@ class StravaWorkoutImporter(
             activities.forEach { activity ->
                 activity.toWorkout()?.let(workouts::add) ?: run { skipped++ }
             }
-            if (activities.size < 200) break
+            if (activities.size < PAGE_SIZE || page == MAX_PAGES) break
             page++
         }
         return ExternalWorkoutImportBatch(workouts, skipped)
+    }
+
+    private companion object {
+        const val PAGE_SIZE = 200
+        const val MAX_PAGES = 2
     }
 }
 
