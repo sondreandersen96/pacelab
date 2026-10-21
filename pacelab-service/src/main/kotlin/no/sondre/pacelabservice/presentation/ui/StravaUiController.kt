@@ -4,9 +4,14 @@ import no.sondre.pacelabservice.application.workout.port.input.ExternalWorkoutCo
 import no.sondre.pacelabservice.application.workout.port.input.ImportExternalWorkouts
 import no.sondre.pacelabservice.application.workout.port.input.WorkoutImportResult
 import no.sondre.pacelabservice.application.workout.port.input.FindWorkouts
+import no.sondre.pacelabservice.application.coach.port.input.GetCoachHistory
+import no.sondre.pacelabservice.application.coach.port.input.SendCoachMessage
+import no.sondre.pacelabservice.application.coach.port.output.CoachModelUnavailableException
+import no.sondre.pacelabservice.application.coach.port.output.CoachModelUpstreamException
 import no.sondre.pacelabservice.application.workout.port.output.WorkoutSearchCriteria
 import no.sondre.pacelabservice.domain.EnduranceWorkout
 import no.sondre.pacelabservice.domain.Workout
+import no.sondre.pacelabservice.domain.coach.ChatMessage
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,6 +27,8 @@ class StravaUiController(
     private val externalWorkoutConnection: ExternalWorkoutConnection,
     private val importExternalWorkouts: ImportExternalWorkouts,
     private val findWorkouts: FindWorkouts,
+    private val getCoachHistory: GetCoachHistory,
+    private val sendCoachMessage: SendCoachMessage,
 ) {
     @GetMapping("/")
     fun index(model: Model): String {
@@ -30,6 +37,7 @@ class StravaUiController(
             "workouts",
             findWorkouts(WorkoutSearchCriteria(), null, 50).workouts.map(::toView),
         )
+        model.addAttribute("coachMessages", getCoachHistory().map { it.toCoachView() })
         return "index"
     }
 
@@ -84,8 +92,32 @@ class StravaUiController(
                 },
             )
 
+    @PostMapping("/coach/ask")
+    fun askCoach(
+        @RequestParam message: String,
+        redirectAttributes: RedirectAttributes,
+    ): String {
+        if (message.isBlank()) {
+            redirectAttributes.addFlashAttribute("coachError", "Ask the coach a question first.")
+            return "redirect:/"
+        }
+
+        return try {
+            sendCoachMessage(message)
+            "redirect:/"
+        } catch (_: CoachModelUnavailableException) {
+            redirectAttributes.addFlashAttribute("coachError", "Coach is currently unavailable.")
+            "redirect:/"
+        } catch (_: CoachModelUpstreamException) {
+            redirectAttributes.addFlashAttribute("coachError", "Coach provider request failed. Please try again.")
+            "redirect:/"
+        }
+    }
+
     private fun WorkoutImportResult.toMessage() =
         "Imported $imported activities; $alreadyImported already imported; $skipped skipped."
+
+    private fun ChatMessage.toCoachView() = CoachMessageView(role.name, content)
 
     private fun toView(workout: Workout) = WorkoutView(
         source = workout.source.name,
@@ -106,4 +138,9 @@ data class WorkoutView(
     val type: String,
     val durationMinutes: Long,
     val distanceKilometers: Double?,
+)
+
+data class CoachMessageView(
+    val role: String,
+    val content: String,
 )
