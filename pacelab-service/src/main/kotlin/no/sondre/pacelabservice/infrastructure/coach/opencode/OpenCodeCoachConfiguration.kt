@@ -18,7 +18,7 @@ class OpenCodeCoachConfiguration {
     fun openCodeProperties(
         @Value("\${opencode.api-key:}") apiKey: String,
         @Value("\${opencode.model:gpt-5.6-luna}") model: String,
-        @Value("\${opencode.base-url:https://opencode.ai/zen/v1}") baseUrl: String,
+        @Value("\${opencode.base-url:https://opencode.ai/inference/openai/v1}") baseUrl: String,
     ) = OpenCodeProperties(apiKey, model, baseUrl)
 
     @Bean

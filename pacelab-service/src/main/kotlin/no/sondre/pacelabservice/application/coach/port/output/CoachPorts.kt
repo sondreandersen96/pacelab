@@ -56,7 +56,7 @@ interface CoachTool {
 
 class CoachModelUnavailableException(message: String) : RuntimeException(message)
 
-class CoachModelUpstreamException(message: String) : RuntimeException(message)
+class CoachModelUpstreamException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
 
 fun ChatMessage.toCoachModelMessage(): CoachModelMessage = when (role) {
     no.sondre.pacelabservice.domain.coach.ChatMessageRole.USER -> CoachModelMessage.User(content)

@@ -13,12 +13,15 @@ import no.sondre.pacelabservice.application.coach.port.output.CoachToolResult
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientResponseException
+import org.slf4j.LoggerFactory
 
 class OpenCodeResponsesCoachModel(
     private val restClient: RestClient,
     private val properties: OpenCodeProperties,
     private val objectMapper: ObjectMapper = ObjectMapper(),
 ) : CoachModel {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override fun respond(messages: List<CoachModelMessage>, tools: List<CoachToolDefinition>): CoachModelResponse {
         requireConfigured()
         return send(
@@ -56,7 +59,12 @@ class OpenCodeResponsesCoachModel(
                 .body(OpenCodeResponse::class.java)
                 ?: throw CoachModelUpstreamException("OpenCode returned an empty response")
         } catch (exception: RestClientResponseException) {
-            throw CoachModelUpstreamException("OpenCode returned status ${exception.statusCode.value()}")
+            logger.warn(
+                "OpenCode response request failed: status={}, detail={}",
+                exception.statusCode.value(),
+                providerErrorDetail(exception.responseBodyAsString),
+            )
+            throw CoachModelUpstreamException("OpenCode returned status ${exception.statusCode.value()}", exception)
         } catch (_: ResourceAccessException) {
             throw CoachModelUnavailableException("OpenCode is unavailable")
         }
@@ -85,6 +93,16 @@ class OpenCodeResponsesCoachModel(
         } catch (_: Exception) {
             mapOf("_invalid" to "Invalid tool arguments")
         }
+    }
+
+    private fun providerErrorDetail(body: String): String = try {
+        val error = objectMapper.readTree(body).path("error")
+        listOf("type", "code", "param")
+            .mapNotNull { field -> error.path(field).takeUnless { it.isMissingNode || it.isNull }?.let { "$field=$it" } }
+            .ifEmpty { listOf("unstructured provider error") }
+            .joinToString(", ")
+    } catch (_: Exception) {
+        "unstructured provider error"
     }
 
     private fun requireConfigured() {

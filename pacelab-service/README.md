@@ -42,7 +42,7 @@ The single-user coach conversation is retained in memory until the application r
 | --- | --- | --- | --- |
 | `OPENCODE_API_KEY` | Yes | - | OpenCode Console API key. |
 | `OPENCODE_MODEL` | No | `gpt-5.6-luna` | OpenCode Console model ID. |
-| `OPENCODE_BASE_URL` | No | `https://opencode.ai/zen/v1` | OpenCode Console API base URL. |
+| `OPENCODE_BASE_URL` | No | `https://opencode.ai/inference/openai/v1` | OpenCode Console API base URL. |
 
 ```sh
 OPENCODE_API_KEY=your-console-api-key ./gradlew bootRun
