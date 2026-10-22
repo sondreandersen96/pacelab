@@ -1,7 +1,7 @@
 package no.sondre.pacelabservice.infrastructure.strava
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import no.sondre.pacelabservice.application.workout.port.input.ExternalWorkoutConnection
+import no.sondre.pacelabservice.application.workout.port.output.ExternalWorkoutConnection
 import org.springframework.http.MediaType
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.client.RestClient

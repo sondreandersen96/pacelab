@@ -1,7 +1,9 @@
 package no.sondre.pacelabservice.infrastructure.strava
 
 import no.sondre.pacelabservice.application.workout.port.output.ExternalWorkoutImporter
-import no.sondre.pacelabservice.application.workout.port.input.ExternalWorkoutConnection
+import no.sondre.pacelabservice.application.workout.port.output.ExternalWorkoutConnection
+import no.sondre.pacelabservice.application.workout.port.input.ManageExternalWorkoutConnection
+import no.sondre.pacelabservice.application.workout.service.ManageExternalWorkoutConnectionService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -32,6 +34,11 @@ class StravaConfiguration {
         stravaProperties: StravaProperties,
         stravaConnection: StravaConnection,
     ): ExternalWorkoutConnection = StravaOAuthClient(stravaRestClient, stravaProperties, stravaConnection)
+
+    @Bean
+    fun manageExternalWorkoutConnection(
+        externalWorkoutConnection: ExternalWorkoutConnection,
+    ): ManageExternalWorkoutConnection = ManageExternalWorkoutConnectionService(externalWorkoutConnection)
 
     @Bean
     fun externalWorkoutImporter(

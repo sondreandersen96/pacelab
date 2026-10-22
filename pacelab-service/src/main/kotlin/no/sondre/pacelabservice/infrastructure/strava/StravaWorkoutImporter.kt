@@ -7,7 +7,7 @@ import no.sondre.pacelabservice.application.workout.port.output.ExternalWorkout
 import no.sondre.pacelabservice.application.workout.port.output.ExternalWorkoutConnectionUnavailableException
 import no.sondre.pacelabservice.application.workout.port.output.ExternalWorkoutImportBatch
 import no.sondre.pacelabservice.application.workout.port.output.ExternalWorkoutImporter
-import no.sondre.pacelabservice.application.workout.port.input.ExternalWorkoutConnection
+import no.sondre.pacelabservice.application.workout.port.output.ExternalWorkoutConnection
 import no.sondre.pacelabservice.domain.DistanceMeters
 import no.sondre.pacelabservice.domain.EnduranceWorkoutType
 import no.sondre.pacelabservice.domain.PowerWatts

@@ -1,4 +1,4 @@
-package no.sondre.pacelabservice.application.workout.port.input
+package no.sondre.pacelabservice.application.workout.port.output
 
 interface ExternalWorkoutConnection {
     fun authorizationUrl(state: String): String

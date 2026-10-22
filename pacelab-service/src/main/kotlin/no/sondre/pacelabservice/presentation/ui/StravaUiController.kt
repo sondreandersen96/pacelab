@@ -1,7 +1,7 @@
 package no.sondre.pacelabservice.presentation.ui
 
-import no.sondre.pacelabservice.application.workout.port.input.ExternalWorkoutConnection
 import no.sondre.pacelabservice.application.workout.port.input.ImportExternalWorkouts
+import no.sondre.pacelabservice.application.workout.port.input.ManageExternalWorkoutConnection
 import no.sondre.pacelabservice.application.workout.port.input.WorkoutImportResult
 import no.sondre.pacelabservice.application.workout.port.input.FindWorkouts
 import no.sondre.pacelabservice.application.coach.port.input.GetCoachHistory
@@ -24,7 +24,7 @@ import java.util.Base64
 
 @Controller
 class StravaUiController(
-    private val externalWorkoutConnection: ExternalWorkoutConnection,
+    private val manageExternalWorkoutConnection: ManageExternalWorkoutConnection,
     private val importExternalWorkouts: ImportExternalWorkouts,
     private val findWorkouts: FindWorkouts,
     private val getCoachHistory: GetCoachHistory,
@@ -32,7 +32,7 @@ class StravaUiController(
 ) {
     @GetMapping("/")
     fun index(model: Model): String {
-        model.addAttribute("connected", externalWorkoutConnection.isConnected())
+        model.addAttribute("connected", manageExternalWorkoutConnection.isConnected())
         model.addAttribute(
             "workouts",
             findWorkouts(WorkoutSearchCriteria(), null, 50).workouts.map(::toView),
@@ -46,7 +46,7 @@ class StravaUiController(
         val state = ByteArray(32).also(SecureRandom()::nextBytes)
             .let { Base64.getUrlEncoder().withoutPadding().encodeToString(it) }
         session.setAttribute(OAUTH_STATE, state)
-        return "redirect:${externalWorkoutConnection.authorizationUrl(state)}"
+        return "redirect:${manageExternalWorkoutConnection.authorizationUrl(state)}"
     }
 
     @GetMapping("/strava/callback")
@@ -65,7 +65,7 @@ class StravaUiController(
             return "redirect:/"
         }
 
-        return runCatching { externalWorkoutConnection.completeAuthorization(code, scope) }
+        return runCatching { manageExternalWorkoutConnection.completeAuthorization(code, scope) }
             .fold(
                 onSuccess = {
                     redirectAttributes.addFlashAttribute("message", "Strava connected. Import activities when ready.")
