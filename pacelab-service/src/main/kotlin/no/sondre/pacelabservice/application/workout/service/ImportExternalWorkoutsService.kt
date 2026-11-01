@@ -32,10 +32,19 @@ class ImportExternalWorkoutsService(
                         source = workout.source,
                         sourceActivityId = workout.sourceActivityId,
                         startedAt = workout.startedAt,
-                        duration = workout.duration,
+                        elapsedTime = workout.elapsedTime,
                         type = workout.type,
                         distance = workout.distance,
                         averagePower = workout.averagePower,
+                        movingTime = workout.movingTime,
+                        totalElevationGained = workout.totalElevationGained,
+                        averageSpeed = workout.averageSpeed,
+                        maxSpeed = workout.maxSpeed,
+                        calories = workout.calories,
+                        name = workout.name,
+                        description = workout.description,
+                        stravaDetails = workout.stravaDetails,
+                        samples = workout.samples,
                     ),
                 )
                 is ExternalStrengthWorkout -> createWorkout(
@@ -43,7 +52,11 @@ class ImportExternalWorkoutsService(
                         source = workout.source,
                         sourceActivityId = workout.sourceActivityId,
                         startedAt = workout.startedAt,
-                        duration = workout.duration,
+                        elapsedTime = workout.elapsedTime,
+                        name = workout.name,
+                        description = workout.description,
+                        stravaDetails = workout.stravaDetails,
+                        samples = workout.samples,
                     ),
                 )
             }

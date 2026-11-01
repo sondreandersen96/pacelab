@@ -123,7 +123,7 @@ class StravaUiController(
         source = workout.source.name,
         startedAt = workout.startedAt.toString(),
         type = (workout as? EnduranceWorkout)?.type?.name ?: "STRENGTH",
-        durationMinutes = workout.duration.toMinutes(),
+        durationMinutes = workout.elapsedTime.toMinutes(),
         distanceKilometers = (workout as? EnduranceWorkout)?.distance?.value?.div(1_000),
     )
 

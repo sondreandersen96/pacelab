@@ -43,7 +43,7 @@ class WorkoutControllerTest(
                       "source": "MANUAL",
                       "workoutKind": "ENDURANCE",
                       "startedAt": "2026-09-29T07:00:00Z",
-                      "durationSeconds": 1800,
+                      "elapsedTimeSeconds": 1800,
                       "type": "RUNNING",
                       "distanceMeters": 5000
                     }
@@ -53,6 +53,7 @@ class WorkoutControllerTest(
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.source").value("MANUAL"))
             .andExpect(jsonPath("$.workoutKind").value("ENDURANCE"))
+            .andExpect(jsonPath("$.elapsedTimeSeconds").value(1_800))
             .andExpect(jsonPath("$.type").value("RUNNING"))
             .andExpect(jsonPath("$.averageSpeedMetersPerSecond").value(2.7777777777777777))
     }
@@ -68,7 +69,7 @@ class WorkoutControllerTest(
                       "source": "MANUAL",
                       "workoutKind": "ENDURANCE",
                       "startedAt": "2026-09-29T07:00:00Z",
-                      "durationSeconds": 1800,
+                      "elapsedTimeSeconds": 1800,
                       "type": "RUNNING"
                     }
                     """.trimIndent(),
@@ -177,13 +178,13 @@ class WorkoutControllerTest(
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.activityCount").value(2))
-            .andExpect(jsonPath("$.totalDurationSeconds").value(5_400))
+            .andExpect(jsonPath("$.totalElapsedTimeSeconds").value(5_400))
             .andExpect(jsonPath("$.totalDistanceMeters").value(15_000.0))
     }
 
     @Test
     fun `summarizes strength workouts with zero distance`() {
-        createWorkout("STRENGTH", "2026-03-01T00:00:00Z", durationSeconds = 2_700)
+        createWorkout("STRENGTH", "2026-03-01T00:00:00Z", elapsedTimeSeconds = 2_700)
 
         mockMvc.perform(
             get("/workouts/summary")
@@ -193,7 +194,7 @@ class WorkoutControllerTest(
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.activityCount").value(1))
-            .andExpect(jsonPath("$.totalDurationSeconds").value(2_700))
+            .andExpect(jsonPath("$.totalElapsedTimeSeconds").value(2_700))
             .andExpect(jsonPath("$.totalDistanceMeters").value(0.0))
     }
 
@@ -205,8 +206,8 @@ class WorkoutControllerTest(
 
         assertEquals(before.path("activityCount").asLong() + 1, after.path("activityCount").asLong())
         assertEquals(
-            before.path("totalDurationSeconds").asLong() + 1_800,
-            after.path("totalDurationSeconds").asLong(),
+            before.path("totalElapsedTimeSeconds").asLong() + 1_800,
+            after.path("totalElapsedTimeSeconds").asLong(),
         )
         assertEquals(before.path("totalDistanceMeters").asDouble(), after.path("totalDistanceMeters").asDouble())
     }
@@ -220,7 +221,7 @@ class WorkoutControllerTest(
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.activityCount").value(0))
-            .andExpect(jsonPath("$.totalDurationSeconds").value(0))
+            .andExpect(jsonPath("$.totalElapsedTimeSeconds").value(0))
             .andExpect(jsonPath("$.totalDistanceMeters").value(0.0))
     }
 
@@ -239,7 +240,7 @@ class WorkoutControllerTest(
         workoutKind: String,
         startedAt: String,
         type: String? = null,
-        durationSeconds: Long = 1_800,
+        elapsedTimeSeconds: Long = 1_800,
         distanceMeters: Double = 5_000.0,
     ) = objectMapper.readTree(
         mockMvc.perform(
@@ -252,7 +253,7 @@ class WorkoutControllerTest(
                           "source": "MANUAL",
                           "workoutKind": "STRENGTH",
                           "startedAt": "$startedAt",
-                          "durationSeconds": $durationSeconds
+                          "elapsedTimeSeconds": $elapsedTimeSeconds
                         }
                         """.trimIndent()
                     } else {
@@ -261,7 +262,7 @@ class WorkoutControllerTest(
                           "source": "MANUAL",
                           "workoutKind": "ENDURANCE",
                           "startedAt": "$startedAt",
-                          "durationSeconds": $durationSeconds,
+                          "elapsedTimeSeconds": $elapsedTimeSeconds,
                           "type": "$type",
                           "distanceMeters": $distanceMeters
                         }

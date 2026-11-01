@@ -29,7 +29,7 @@ class CreateWorkoutServiceTest {
             CreateEnduranceWorkoutCommand(
                 source = WorkoutSource.STRAVA,
                 startedAt = Instant.parse("2026-09-29T07:00:00Z"),
-                duration = Duration.ofMinutes(30),
+                elapsedTime = Duration.ofMinutes(30),
                 type = EnduranceWorkoutType.CYCLING,
                 distance = DistanceMeters(15_000.0),
             ),

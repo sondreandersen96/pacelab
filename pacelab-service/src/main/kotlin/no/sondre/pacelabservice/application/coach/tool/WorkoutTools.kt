@@ -27,7 +27,7 @@ class WorkoutHistorySummaryTool(
         val summary = summarizeWorkoutHistory(arguments.toSearchCriteria())
         mapOf(
             "activityCount" to summary.activityCount,
-            "totalDurationSeconds" to summary.totalDuration.seconds,
+            "totalElapsedTimeSeconds" to summary.totalElapsedTime.seconds,
             "totalDistanceMeters" to summary.totalDistanceMeters,
         )
     }.getOrElse(::toolError)
@@ -102,7 +102,7 @@ private fun Workout.toToolResult(): Map<String, Any?> = mapOf(
     "source" to source.name,
     "workoutKind" to kind.name,
     "startedAt" to startedAt.toString(),
-    "durationSeconds" to duration.seconds,
+    "elapsedTimeSeconds" to elapsedTime.seconds,
     "type" to (this as? EnduranceWorkout)?.type?.name,
     "distanceMeters" to (this as? EnduranceWorkout)?.distance?.value,
     "averagePowerWatts" to (this as? EnduranceWorkout)?.averagePower?.value,

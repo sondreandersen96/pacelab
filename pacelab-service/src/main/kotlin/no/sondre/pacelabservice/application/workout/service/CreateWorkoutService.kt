@@ -20,17 +20,30 @@ class CreateWorkoutService(
                 source = command.source,
                 sourceActivityId = command.sourceActivityId,
                 startedAt = command.startedAt,
-                duration = command.duration,
+                elapsedTime = command.elapsedTime,
                 type = command.type,
                 distance = command.distance,
                 averagePower = command.averagePower,
+                movingTime = command.movingTime,
+                totalElevationGained = command.totalElevationGained,
+                averageSpeed = command.averageSpeed,
+                maxSpeed = command.maxSpeed,
+                calories = command.calories,
+                name = command.name,
+                description = command.description,
+                stravaDetails = command.stravaDetails,
+                samples = command.samples,
             )
             is CreateStrengthWorkoutCommand -> StrengthWorkout(
                 id = WorkoutId.generate(),
                 source = command.source,
                 sourceActivityId = command.sourceActivityId,
                 startedAt = command.startedAt,
-                duration = command.duration,
+                elapsedTime = command.elapsedTime,
+                name = command.name,
+                description = command.description,
+                stravaDetails = command.stravaDetails,
+                samples = command.samples,
             )
         }
 
