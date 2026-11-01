@@ -7,6 +7,7 @@ import kotlin.test.assertNull
 import no.sondre.pacelabservice.application.workout.port.output.ExternalEnduranceWorkout
 import no.sondre.pacelabservice.application.workout.port.output.ExternalStrengthWorkout
 import no.sondre.pacelabservice.domain.EnduranceWorkoutType
+import no.sondre.pacelabservice.domain.StravaDetails
 import java.time.Instant
 
 class StravaWorkoutImporterTest {
@@ -24,14 +25,15 @@ class StravaWorkoutImporterTest {
         assertEquals(4.5, enduranceWorkout.maxSpeed?.value)
         assertEquals(450.0, enduranceWorkout.calories?.value)
         assertEquals("Easy effort", enduranceWorkout.description)
-        assertEquals("map-1", enduranceWorkout.stravaDetails?.map?.id)
-        assertEquals("detailed-polyline", enduranceWorkout.stravaDetails?.map?.polyline)
-        assertEquals(3, enduranceWorkout.stravaDetails?.stravaPrCount)
-        assertEquals(true, enduranceWorkout.stravaDetails?.trainer)
-        assertEquals("g1", enduranceWorkout.stravaDetails?.gearId)
-        assertEquals(true, enduranceWorkout.stravaDetails?.deviceWatts)
-        assertEquals(true, enduranceWorkout.stravaDetails?.hasHeartrate)
-        assertEquals(true, enduranceWorkout.stravaDetails?.hasPhotos)
+        val details = assertIs<StravaDetails>(enduranceWorkout.sourceDetails)
+        assertEquals("map-1", details.map?.id)
+        assertEquals("detailed-polyline", details.map?.polyline)
+        assertEquals(3, details.stravaPrCount)
+        assertEquals(true, details.trainer)
+        assertEquals("g1", details.gearId)
+        assertEquals(true, details.deviceWatts)
+        assertEquals(true, details.hasHeartrate)
+        assertEquals(true, details.hasPhotos)
         assertEquals(2, enduranceWorkout.samples.size)
         assertEquals(142, enduranceWorkout.samples[1].heartrate)
         assertEquals(59.912, enduranceWorkout.samples[1].location?.latitude)

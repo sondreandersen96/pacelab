@@ -16,7 +16,7 @@ import no.sondre.pacelabservice.domain.PowerWatts
 import no.sondre.pacelabservice.domain.SourceActivityId
 import no.sondre.pacelabservice.domain.SpeedMetersPerSecond
 import no.sondre.pacelabservice.domain.StravaMap
-import no.sondre.pacelabservice.domain.StravaWorkoutDetails
+import no.sondre.pacelabservice.domain.StravaDetails
 import no.sondre.pacelabservice.domain.WorkoutLocation
 import no.sondre.pacelabservice.domain.WorkoutSample
 import no.sondre.pacelabservice.domain.WorkoutSource
@@ -133,7 +133,7 @@ data class StravaStream(val data: List<Any?> = emptyList())
 internal fun StravaDetailedActivity.toWorkout(streams: StravaStreams): ExternalWorkout? {
     val validElapsedTime = runCatching { Duration.ofSeconds(elapsedTime).also { require(!it.isZero && !it.isNegative) } }.getOrNull() ?: return null
     val sourceActivityId = SourceActivityId(id.toString())
-    val details = StravaWorkoutDetails(
+    val details = StravaDetails(
         trainer = trainer,
         manual = manual,
         gearId = gearId,
@@ -161,7 +161,7 @@ private fun StravaDetailedActivity.enduranceWorkout(
     type: EnduranceWorkoutType,
     sourceActivityId: SourceActivityId,
     elapsedTime: Duration,
-    details: StravaWorkoutDetails,
+    details: StravaDetails,
     samples: List<WorkoutSample>,
     name: String?,
     description: String?,

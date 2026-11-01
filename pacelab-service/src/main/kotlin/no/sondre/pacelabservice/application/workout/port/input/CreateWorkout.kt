@@ -7,7 +7,7 @@ import no.sondre.pacelabservice.domain.EnduranceWorkoutType
 import no.sondre.pacelabservice.domain.PowerWatts
 import no.sondre.pacelabservice.domain.SourceActivityId
 import no.sondre.pacelabservice.domain.SpeedMetersPerSecond
-import no.sondre.pacelabservice.domain.StravaWorkoutDetails
+import no.sondre.pacelabservice.domain.SourceWorkoutDetails
 import no.sondre.pacelabservice.domain.Workout
 import no.sondre.pacelabservice.domain.WorkoutSource
 import no.sondre.pacelabservice.domain.WorkoutSample
@@ -25,7 +25,7 @@ sealed interface CreateWorkoutCommand {
     val elapsedTime: Duration
     val name: String?
     val description: String?
-    val stravaDetails: StravaWorkoutDetails?
+    val sourceDetails: SourceWorkoutDetails?
     val samples: List<WorkoutSample>
 }
 
@@ -44,7 +44,7 @@ data class CreateEnduranceWorkoutCommand(
     val calories: Calories? = null,
     override val name: String? = null,
     override val description: String? = null,
-    override val stravaDetails: StravaWorkoutDetails? = null,
+    override val sourceDetails: SourceWorkoutDetails? = null,
     override val samples: List<WorkoutSample> = emptyList(),
 ) : CreateWorkoutCommand
 
@@ -55,6 +55,6 @@ data class CreateStrengthWorkoutCommand(
     override val elapsedTime: Duration,
     override val name: String? = null,
     override val description: String? = null,
-    override val stravaDetails: StravaWorkoutDetails? = null,
+    override val sourceDetails: SourceWorkoutDetails? = null,
     override val samples: List<WorkoutSample> = emptyList(),
 ) : CreateWorkoutCommand

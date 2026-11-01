@@ -43,7 +43,7 @@ class ImportExternalWorkoutsService(
                         calories = workout.calories,
                         name = workout.name,
                         description = workout.description,
-                        stravaDetails = workout.stravaDetails,
+                        sourceDetails = workout.sourceDetails,
                         samples = workout.samples,
                     ),
                 )
@@ -55,7 +55,7 @@ class ImportExternalWorkoutsService(
                         elapsedTime = workout.elapsedTime,
                         name = workout.name,
                         description = workout.description,
-                        stravaDetails = workout.stravaDetails,
+                        sourceDetails = workout.sourceDetails,
                         samples = workout.samples,
                     ),
                 )

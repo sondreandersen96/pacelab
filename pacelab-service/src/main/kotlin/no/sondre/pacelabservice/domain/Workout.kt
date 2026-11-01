@@ -54,7 +54,9 @@ data class StravaMap(
     init { require(id != null || polyline != null) { "Strava map must have an id or polyline" } }
 }
 
-data class StravaWorkoutDetails(
+sealed interface SourceWorkoutDetails
+
+data class StravaDetails(
     val trainer: Boolean,
     val manual: Boolean,
     val gearId: String?,
@@ -63,7 +65,7 @@ data class StravaWorkoutDetails(
     val hasPhotos: Boolean,
     val stravaPrCount: Int,
     val map: StravaMap?,
-) {
+) : SourceWorkoutDetails {
     init { require(stravaPrCount >= 0) { "Strava PR count must be non-negative" } }
 }
 
@@ -106,7 +108,7 @@ sealed class Workout {
     abstract val elapsedTime: Duration
     abstract val name: String?
     abstract val description: String?
-    abstract val stravaDetails: StravaWorkoutDetails?
+    abstract val sourceDetails: SourceWorkoutDetails?
     abstract val samples: List<WorkoutSample>
 
     val kind: WorkoutKind get() = when (this) {
@@ -118,7 +120,9 @@ sealed class Workout {
         require(!elapsedTime.isZero && !elapsedTime.isNegative) { "Elapsed time must be greater than zero" }
         require(name?.isNotBlank() != false) { "Workout name must not be blank" }
         require(description?.isNotBlank() != false) { "Workout description must not be blank" }
-        require(stravaDetails == null || source == WorkoutSource.STRAVA) { "Strava details require a Strava workout" }
+        require(sourceDetails !is StravaDetails || source == WorkoutSource.STRAVA) {
+            "Strava details require a Strava workout"
+        }
         require(samples.zipWithNext().all { (first, second) -> first.elapsedTime < second.elapsedTime }) {
             "Workout samples must be ordered by elapsed time"
         }
@@ -142,7 +146,7 @@ data class EnduranceWorkout(
     val calories: Calories? = null,
     override val name: String? = null,
     override val description: String? = null,
-    override val stravaDetails: StravaWorkoutDetails? = null,
+    override val sourceDetails: SourceWorkoutDetails? = null,
     override val samples: List<WorkoutSample> = emptyList(),
 ) : Workout() {
     init {
@@ -163,7 +167,7 @@ data class StrengthWorkout(
     override val elapsedTime: Duration,
     override val name: String? = null,
     override val description: String? = null,
-    override val stravaDetails: StravaWorkoutDetails? = null,
+    override val sourceDetails: SourceWorkoutDetails? = null,
     override val samples: List<WorkoutSample> = emptyList(),
 ) : Workout() {
     init { validateCommonFields() }

@@ -31,7 +31,7 @@ class CreateWorkoutService(
                 calories = command.calories,
                 name = command.name,
                 description = command.description,
-                stravaDetails = command.stravaDetails,
+                sourceDetails = command.sourceDetails,
                 samples = command.samples,
             )
             is CreateStrengthWorkoutCommand -> StrengthWorkout(
@@ -42,7 +42,7 @@ class CreateWorkoutService(
                 elapsedTime = command.elapsedTime,
                 name = command.name,
                 description = command.description,
-                stravaDetails = command.stravaDetails,
+                sourceDetails = command.sourceDetails,
                 samples = command.samples,
             )
         }

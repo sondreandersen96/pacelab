@@ -7,7 +7,7 @@ import no.sondre.pacelabservice.domain.PowerWatts
 import no.sondre.pacelabservice.domain.SourceActivityId
 import no.sondre.pacelabservice.domain.SpeedMetersPerSecond
 import no.sondre.pacelabservice.domain.Calories
-import no.sondre.pacelabservice.domain.StravaWorkoutDetails
+import no.sondre.pacelabservice.domain.SourceWorkoutDetails
 import no.sondre.pacelabservice.domain.WorkoutSource
 import no.sondre.pacelabservice.domain.WorkoutSample
 import java.time.Duration
@@ -29,7 +29,7 @@ sealed interface ExternalWorkout {
     val elapsedTime: Duration
     val name: String?
     val description: String?
-    val stravaDetails: StravaWorkoutDetails?
+    val sourceDetails: SourceWorkoutDetails?
     val samples: List<WorkoutSample>
 }
 
@@ -48,7 +48,7 @@ data class ExternalEnduranceWorkout(
     val calories: Calories? = null,
     override val name: String? = null,
     override val description: String? = null,
-    override val stravaDetails: StravaWorkoutDetails? = null,
+    override val sourceDetails: SourceWorkoutDetails? = null,
     override val samples: List<WorkoutSample> = emptyList(),
 ) : ExternalWorkout
 
@@ -59,7 +59,7 @@ data class ExternalStrengthWorkout(
     override val elapsedTime: Duration,
     override val name: String? = null,
     override val description: String? = null,
-    override val stravaDetails: StravaWorkoutDetails? = null,
+    override val sourceDetails: SourceWorkoutDetails? = null,
     override val samples: List<WorkoutSample> = emptyList(),
 ) : ExternalWorkout
 
