@@ -41,7 +41,7 @@ data class CreateWorkoutRequest(
     val source: WorkoutSource,
     val workoutKind: WorkoutKind,
     val startedAt: Instant,
-    val durationSeconds: Long,
+    val elapsedTimeSeconds: Long,
     val type: EnduranceWorkoutType? = null,
     val distanceMeters: Double? = null,
     val averagePowerWatts: Double? = null,
@@ -52,7 +52,7 @@ data class WorkoutResponse(
     val source: WorkoutSource,
     val workoutKind: WorkoutKind,
     val startedAt: Instant,
-    val durationSeconds: Long,
+    val elapsedTimeSeconds: Long,
     val type: EnduranceWorkoutType? = null,
     val distanceMeters: Double? = null,
     val averagePowerWatts: Double? = null,
@@ -67,7 +67,7 @@ data class WorkoutPageResponse(
 
 data class WorkoutHistorySummaryResponse(
     val activityCount: Long,
-    val totalDurationSeconds: Long,
+    val totalElapsedTimeSeconds: Long,
     val totalDistanceMeters: Double,
 )
 
@@ -137,7 +137,7 @@ private fun CreateWorkoutRequest.toCommand(): CreateWorkoutCommand = when (worko
     WorkoutKind.ENDURANCE -> CreateEnduranceWorkoutCommand(
         source = source,
         startedAt = startedAt,
-        duration = Duration.ofSeconds(durationSeconds),
+        elapsedTime = Duration.ofSeconds(elapsedTimeSeconds),
         type = requireNotNull(type) { "Endurance workouts require a type" },
         distance = DistanceMeters(requireNotNull(distanceMeters) { "Endurance workouts require a distance" }),
         averagePower = averagePowerWatts?.let(::PowerWatts),
@@ -149,7 +149,7 @@ private fun CreateWorkoutRequest.toCommand(): CreateWorkoutCommand = when (worko
         CreateStrengthWorkoutCommand(
             source = source,
             startedAt = startedAt,
-            duration = Duration.ofSeconds(durationSeconds),
+            elapsedTime = Duration.ofSeconds(elapsedTimeSeconds),
         )
     }
 }
@@ -160,7 +160,7 @@ private fun Workout.toResponse(): WorkoutResponse = when (this) {
         source = source,
         workoutKind = WorkoutKind.ENDURANCE,
         startedAt = startedAt,
-        durationSeconds = duration.seconds,
+        elapsedTimeSeconds = elapsedTime.seconds,
         type = type,
         distanceMeters = distance.value,
         averagePowerWatts = averagePower?.value,
@@ -171,13 +171,13 @@ private fun Workout.toResponse(): WorkoutResponse = when (this) {
         source = source,
         workoutKind = WorkoutKind.STRENGTH,
         startedAt = startedAt,
-        durationSeconds = duration.seconds,
+        elapsedTimeSeconds = elapsedTime.seconds,
     )
 }
 
 private fun WorkoutHistorySummary.toResponse() = WorkoutHistorySummaryResponse(
     activityCount = activityCount,
-    totalDurationSeconds = totalDuration.seconds,
+    totalElapsedTimeSeconds = totalElapsedTime.seconds,
     totalDistanceMeters = totalDistanceMeters,
 )
 

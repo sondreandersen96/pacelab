@@ -53,7 +53,7 @@ class InMemoryWorkoutRepository : WorkoutRepository {
             .fold(WorkoutHistorySummary(0, Duration.ZERO, 0.0)) { summary, workout ->
                 WorkoutHistorySummary(
                     activityCount = summary.activityCount + 1,
-                    totalDuration = summary.totalDuration.plus(workout.duration),
+                    totalElapsedTime = summary.totalElapsedTime.plus(workout.elapsedTime),
                     totalDistanceMeters = summary.totalDistanceMeters + ((workout as? EnduranceWorkout)?.distance?.value ?: 0.0),
                 )
             }

@@ -44,6 +44,6 @@ data class WorkoutPage(
 
 data class WorkoutHistorySummary(
     val activityCount: Long,
-    val totalDuration: Duration,
+    val totalElapsedTime: Duration,
     val totalDistanceMeters: Double,
 )

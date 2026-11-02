@@ -13,7 +13,7 @@ class WorkoutTest {
             id = WorkoutId.generate(),
             source = WorkoutSource.MANUAL,
             startedAt = Instant.parse("2026-09-29T07:00:00Z"),
-            duration = Duration.ofMinutes(30),
+            elapsedTime = Duration.ofMinutes(30),
             type = EnduranceWorkoutType.RUNNING,
             distance = DistanceMeters(5_000.0),
         )
@@ -22,13 +22,13 @@ class WorkoutTest {
     }
 
     @Test
-    fun `rejects non-positive workout duration`() {
+    fun `rejects non-positive workout elapsed time`() {
         assertFailsWith<IllegalArgumentException> {
             StrengthWorkout(
                 id = WorkoutId.generate(),
                 source = WorkoutSource.MANUAL,
                 startedAt = Instant.parse("2026-09-29T07:00:00Z"),
-                duration = Duration.ZERO,
+                elapsedTime = Duration.ZERO,
             )
         }
     }
